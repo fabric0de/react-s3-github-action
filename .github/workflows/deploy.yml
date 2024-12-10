@@ -12,20 +12,24 @@ jobs:
       - name: Checkout source code # 레포지토리 체크아웃
         uses: actions/checkout@v3
 
-      - name: Cache node modules # node_modules 캐싱
+      - name: Install pnpm # pnpm 설치
+        run: npm install -g pnpm
+
+      - name: Cache pnpm store # pnpm 캐시 설정
         uses: actions/cache@v3
         with:
-          path: node_modules # node_modules 경로
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.pnpm-store # pnpm 캐시 경로
+          key: ${{ runner.OS }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
+            ${{ runner.OS }}-pnpm-
 
       - name: Install Dependencies # 의존성 설치
-        run: npm ci # npm install보다 더 빠른 의존성 설치 방법
+        run: pnpm install --frozen-lockfile
+        #run: npm ci # npm install보다 더 빠른 의존성 설치 방법 (기존 npm 명령어)
 
       - name: Build Vite project # Vite 프로젝트 빌드
-        run: npm run build
+        run: pnpm run build
+        #run: npm run build # 기존 npm 명령어
 
       - name: Deploy to S3 # S3에 배포
         env:
