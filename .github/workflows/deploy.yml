@@ -1,0 +1,38 @@
+name: Vite build and deploy
+
+on: 
+  push: # main Branch에서 push 이벤트가 일어났을 때 실행
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code # 레포지토리 체크아웃
+        uses: actions/checkout@v3
+
+      - name: Cache node modules # node_modules 캐싱
+        uses: actions/cache@v3
+        with:
+          path: node_modules # node_modules 경로
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Install Dependencies # 의존성 설치
+        run: npm ci # npm install보다 더 빠른 의존성 설치 방법
+
+      - name: Build Vite project # Vite 프로젝트 빌드
+        run: npm run build
+
+      - name: Deploy to S3 # S3에 배포
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp \
+            --recursive \
+            --region ap-northeast-2 \
+            dist s3://alyes-bucket
