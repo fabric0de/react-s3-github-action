@@ -7,6 +7,8 @@ function App() {
 			<div className='flex items-center justify-between'>
 				<button className='btn btn-secondary'>취소</button>
 				<button className='btn btn-secondary'>확인</button>
+				<button className='btn btn-secondary'>취소</button>
+				<button className='btn btn-secondary'>확인</button>
 			</div>
 		</>
 	)
